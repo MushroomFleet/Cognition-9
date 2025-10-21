@@ -404,3 +404,24 @@ Based on research from:
 ---
 
 **Built with ❤️ for multi-agent research and production deployment**
+
+## 📚 Citation
+
+### Academic Citation
+
+If you use this codebase in your research or project, please cite:
+
+```bibtex
+@software{cognition_9,
+  title = {Cognition 9: Experimental Cybernetic Sub Agents for Claude Code},
+  author = {[Drift Johnson]},
+  year = {2025},
+  url = {https://github.com/MushroomFleet/Cognition-9},
+  version = {1.0.0}
+}
+```
+
+### Donate:
+
+
+[![Ko-Fi](https://cdn.ko-fi.com/cdn/kofi3.png?v=3)](https://ko-fi.com/driftjohnson)
