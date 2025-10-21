@@ -1,0 +1,32 @@
+{
+  "specialist_id": "specialist_91e31361",
+  "task_signatures": [
+    {
+      "domain": "research",
+      "complexity": 0.6,
+      "input_type": "text",
+      "output_type": "report",
+      "keywords": [
+        "python",
+        "async"
+      ],
+      "estimated_duration": 2.0
+    },
+    {
+      "domain": "research",
+      "complexity": 0.7,
+      "input_type": "text",
+      "output_type": "report",
+      "keywords": [
+        "python",
+        "patterns"
+      ],
+      "estimated_duration": 2.5
+    }
+  ],
+  "success_count": 2,
+  "failure_count": 0,
+  "average_quality": 0.9,
+  "total_executions": 2,
+  "specialization_strength": 0.998925
+}

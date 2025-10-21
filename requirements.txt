@@ -1,0 +1,20 @@
+# Multi-Agent Orchestration System - Python Dependencies
+
+# Core Dependencies (Required for testing)
+# None - all core functionality uses Python standard library
+
+# Optional Dependencies for Stage 5 (Production Deployment)
+
+# Security - JWT token generation and verification
+PyJWT>=2.8.0
+
+# API Layer (if implementing REST API)
+Flask>=3.0.0
+flask-cors>=4.0.0
+
+# Note: Install with:
+# pip install -r requirements.txt
+#
+# Or install only what you need:
+# pip install PyJWT                    # For security.py JWT functionality
+# pip install Flask flask-cors         # For API layer (optional)

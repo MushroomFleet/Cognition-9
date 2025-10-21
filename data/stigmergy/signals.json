@@ -1,0 +1,12 @@
+{
+  "test_task": [
+    {
+      "task_id": "test_task",
+      "approach": "approach_A",
+      "strength": 100.0,
+      "timestamp": 1761068797.8530881,
+      "deposited_by": "agent_0",
+      "success_metric": 0.8161202891867488
+    }
+  ]
+}

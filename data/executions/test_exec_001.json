@@ -1,0 +1,43 @@
+{
+  "execution_id": "test_exec_001",
+  "workflow": {
+    "name": "Test Workflow",
+    "steps": [
+      "step1",
+      "step2",
+      "step3"
+    ]
+  },
+  "status": "completed",
+  "start_time": 1761069304.4000146,
+  "checkpoints": [
+    {
+      "checkpoint_id": "ckpt_9fb350da082f",
+      "execution_id": "test_exec_001",
+      "timestamp": 1761069304.4010139,
+      "phase": "phase1",
+      "state": {
+        "data": "test"
+      },
+      "completed_steps": [
+        "step1"
+      ],
+      "pending_steps": [
+        "step2",
+        "step3"
+      ],
+      "metadata": {}
+    }
+  ],
+  "completed_steps": [
+    "step1"
+  ],
+  "state": {
+    "data": "test"
+  },
+  "end_time": 1761069304.4317794,
+  "result": {
+    "result": "success"
+  },
+  "duration": 0.03176474571228027
+}

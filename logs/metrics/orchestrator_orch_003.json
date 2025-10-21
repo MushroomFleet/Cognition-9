@@ -1,0 +1,18 @@
+{
+  "orchestration_id": "orch_003",
+  "pattern": "hub-spoke",
+  "start_time": 1761067966.5517805,
+  "end_time": 1761068266.5517805,
+  "total_duration": 300.0,
+  "agents_used": [
+    "orchestrator",
+    "researcher",
+    "writer",
+    "critic-reviewer"
+  ],
+  "tasks_completed": 4,
+  "tasks_failed": 0,
+  "average_quality": 0.92,
+  "total_tokens": 50000,
+  "refinement_cycles": 2
+}
