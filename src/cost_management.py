@@ -4,7 +4,7 @@ Tracks and limits token usage across executions
 """
 
 import json
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -13,8 +13,8 @@ from datetime import datetime, timedelta
 class TokenBudget:
     """Token budget for a user or project"""
     budget_id: str
-    total_budget: int
-    used_tokens: int
+    total_budget: int  # Total tokens allocated
+    used_tokens: int  # Tokens used so far
     period_start: float
     period_end: float
     
@@ -33,9 +33,11 @@ class TokenBudget:
         return self.used_tokens >= self.total_budget
 
 class CostManager:
-    """Manages token budgets and cost tracking"""
+    """
+    Manages token budgets and cost tracking
+    """
     
-    # Pricing per 1M tokens (example rates - update with actual pricing)
+    # Pricing per 1M tokens (example rates)
     MODEL_COSTS = {
         "opus": {"input": 15.0, "output": 75.0},
         "sonnet": {"input": 3.0, "output": 15.0},
@@ -70,16 +72,27 @@ class CostManager:
         
         return budget
     
-    def check_budget(self, budget_id: str, requested_tokens: int) -> Tuple[bool, str]:
-        """Check if budget allows requested tokens"""
+    def check_budget(
+        self,
+        budget_id: str,
+        requested_tokens: int
+    ) -> tuple[bool, str]:
+        """
+        Check if budget allows requested tokens
+        
+        Returns:
+            (allowed, message)
+        """
         budget = self.budgets.get(budget_id)
         if not budget:
             return False, f"Budget not found: {budget_id}"
         
+        # Check if period expired
         now = datetime.utcnow().timestamp()
         if now > budget.period_end:
             return False, "Budget period expired"
         
+        # Check if sufficient tokens
         if budget.used_tokens + requested_tokens > budget.total_budget:
             remaining = budget.remaining()
             return False, f"Insufficient tokens (have: {remaining}, need: {requested_tokens})"
@@ -92,7 +105,12 @@ class CostManager:
         tokens_used: int,
         model: str = "sonnet"
     ) -> Dict:
-        """Record token usage and calculate cost"""
+        """
+        Record token usage
+        
+        Returns:
+            Usage details including cost
+        """
         budget = self.budgets.get(budget_id)
         if not budget:
             raise ValueError(f"Budget not found: {budget_id}")
@@ -100,6 +118,7 @@ class CostManager:
         budget.used_tokens += tokens_used
         self._save_budget(budget)
         
+        # Calculate cost
         cost = self._calculate_cost(tokens_used, model)
         
         return {
@@ -131,7 +150,7 @@ class CostManager:
     def _calculate_cost(self, tokens: int, model: str) -> float:
         """Calculate cost in USD"""
         if model not in self.MODEL_COSTS:
-            model = "sonnet"
+            model = "sonnet"  # Default
         
         # Simplified: assume 50/50 input/output split
         input_tokens = tokens // 2
@@ -166,6 +185,7 @@ class CostManager:
                 print(f"Error loading budget from {filepath}: {e}")
 
 
+# Example usage
 if __name__ == "__main__":
     print("=" * 60)
     print("COST MANAGEMENT DEMO")
@@ -173,6 +193,7 @@ if __name__ == "__main__":
     
     cost_mgr = CostManager()
     
+    # Create budget
     print("\n--- Creating Budget ---")
     budget = cost_mgr.create_budget(
         budget_id="project_alpha",
@@ -182,10 +203,12 @@ if __name__ == "__main__":
     print(f"Created budget: {budget.budget_id}")
     print(f"Total tokens: {budget.total_budget:,}")
     
+    # Check budget
     print("\n--- Checking Budget ---")
     allowed, msg = cost_mgr.check_budget("project_alpha", 50_000)
     print(f"Request 50k tokens: {msg}")
     
+    # Consume tokens
     print("\n--- Consuming Tokens ---")
     usage = cost_mgr.consume_tokens("project_alpha", 50_000, model="opus")
     print(f"Tokens used: {usage['tokens_used']:,}")
@@ -193,6 +216,7 @@ if __name__ == "__main__":
     print(f"Remaining: {usage['budget_remaining']:,}")
     print(f"Utilization: {usage['budget_utilization']:.1f}%")
     
+    # Get status
     print("\n--- Budget Status ---")
     status = cost_mgr.get_budget_status("project_alpha")
     print(json.dumps(status, indent=2))

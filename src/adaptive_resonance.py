@@ -5,73 +5,55 @@ Dynamically creates and adapts specialists based on task patterns
 
 import json
 import hashlib
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from pathlib import Path
-import sys
+import numpy as np
 
-# Simple numpy-free implementation for compatibility
+@dataclass
 class TaskSignature:
     """Represents key characteristics of a task"""
-    def __init__(self, domain: str, complexity: float, input_type: str, 
-                 output_type: str, keywords: List[str], estimated_duration: float):
-        self.domain = domain
-        self.complexity = complexity
-        self.input_type = input_type
-        self.output_type = output_type
-        self.keywords = keywords
-        self.estimated_duration = estimated_duration
+    domain: str  # e.g., "research", "coding", "writing"
+    complexity: float  # 0.0 to 1.0
+    input_type: str  # e.g., "text", "code", "data"
+    output_type: str  # e.g., "report", "code", "analysis"
+    keywords: List[str]
+    estimated_duration: float
     
-    def to_dict(self):
-        return {
-            'domain': self.domain,
-            'complexity': self.complexity,
-            'input_type': self.input_type,
-            'output_type': self.output_type,
-            'keywords': self.keywords,
-            'estimated_duration': self.estimated_duration
-        }
-    
-    def to_vector(self) -> List[float]:
+    def to_vector(self) -> np.ndarray:
         """Convert signature to feature vector for comparison"""
-        domain_enc = (hash(self.domain) % 100) / 100.0
-        input_enc = (hash(self.input_type) % 100) / 100.0
-        output_enc = (hash(self.output_type) % 100) / 100.0
+        # Simple feature encoding (extend as needed)
+        domain_enc = hash(self.domain) % 100 / 100.0
+        input_enc = hash(self.input_type) % 100 / 100.0
+        output_enc = hash(self.output_type) % 100 / 100.0
         keyword_enc = sum(hash(k) % 100 for k in self.keywords) / (len(self.keywords) * 100.0) if self.keywords else 0
         
-        return [
+        return np.array([
             domain_enc,
             self.complexity,
             input_enc,
             output_enc,
             keyword_enc,
-            min(self.estimated_duration / 10.0, 1.0)
-        ]
-
+            min(self.estimated_duration / 10.0, 1.0)  # Normalize duration
+        ])
 
 @dataclass
 class SpecialistProfile:
     """Profile of a specialist agent"""
     specialist_id: str
-    task_signatures: List[Dict]
+    task_signatures: List[TaskSignature]
     success_count: int
     failure_count: int
     average_quality: float
     total_executions: int
-    specialization_strength: float
+    specialization_strength: float  # How specialized vs generalist
     
-    def compute_centroid(self) -> List[float]:
+    def compute_centroid(self) -> np.ndarray:
         """Compute center of specialist's expertise"""
         if not self.task_signatures:
-            return [0.0] * 6
-        
-        # Convert task signatures back to TaskSignature objects
-        signatures = [TaskSignature(**sig) for sig in self.task_signatures]
-        vectors = [sig.to_vector() for sig in signatures]
-        
-        # Compute mean
-        centroid = [sum(v[i] for v in vectors) / len(vectors) for i in range(6)]
-        return centroid
+            return np.zeros(6)
+        vectors = [sig.to_vector() for sig in self.task_signatures]
+        return np.mean(vectors, axis=0)
     
     def compute_resonance(self, task_signature: TaskSignature) -> float:
         """Calculate how well task matches this specialist"""
@@ -82,9 +64,9 @@ class SpecialistProfile:
         centroid = self.compute_centroid()
         
         # Cosine similarity
-        dot_product = sum(a * b for a, b in zip(task_vector, centroid))
-        task_norm = sum(x ** 2 for x in task_vector) ** 0.5
-        centroid_norm = sum(x ** 2 for x in centroid) ** 0.5
+        dot_product = np.dot(task_vector, centroid)
+        task_norm = np.linalg.norm(task_vector)
+        centroid_norm = np.linalg.norm(centroid)
         
         if task_norm == 0 or centroid_norm == 0:
             return 0.0
@@ -95,7 +77,6 @@ class SpecialistProfile:
         success_rate = self.success_count / self.total_executions if self.total_executions > 0 else 0.5
         
         return similarity * success_rate
-
 
 class AdaptiveResonanceOrchestrator:
     """
@@ -129,7 +110,7 @@ class AdaptiveResonanceOrchestrator:
             estimated_duration=task.get('estimated_duration', 1.0)
         )
     
-    def find_best_match(self, task_signature: TaskSignature) -> tuple:
+    def find_best_match(self, task_signature: TaskSignature) -> Tuple[Optional[str], float]:
         """Find best matching specialist for task"""
         if not self.specialists:
             return None, 0.0
@@ -147,6 +128,7 @@ class AdaptiveResonanceOrchestrator:
     
     def create_specialist(self, task_signature: TaskSignature) -> str:
         """Create new specialist for task pattern"""
+        # Generate unique ID based on task characteristics
         sig_str = f"{task_signature.domain}_{task_signature.input_type}_{task_signature.output_type}"
         specialist_id = f"specialist_{hashlib.md5(sig_str.encode()).hexdigest()[:8]}"
         
@@ -159,7 +141,7 @@ class AdaptiveResonanceOrchestrator:
         
         profile = SpecialistProfile(
             specialist_id=specialist_id,
-            task_signatures=[task_signature.to_dict()],
+            task_signatures=[task_signature],
             success_count=0,
             failure_count=0,
             average_quality=0.0,
@@ -179,24 +161,25 @@ class AdaptiveResonanceOrchestrator:
         
         profile = self.specialists[specialist_id]
         
-        if len(profile.task_signatures) >= 20:
+        # Add task signature with learning rate (exponential moving average)
+        if len(profile.task_signatures) >= 20:  # Limit memory
             profile.task_signatures.pop(0)
-        profile.task_signatures.append(task_signature.to_dict())
+        profile.task_signatures.append(task_signature)
         
-        # Update specialization strength
+        # Update specialization strength (how focused vs general)
         if len(profile.task_signatures) > 1:
-            signatures = [TaskSignature(**sig) for sig in profile.task_signatures]
-            vectors = [sig.to_vector() for sig in signatures]
-            
-            # Calculate variance
-            means = [sum(v[i] for v in vectors) / len(vectors) for i in range(6)]
-            variance = sum(sum((v[i] - means[i]) ** 2 for v in vectors) / len(vectors) for i in range(6)) / 6
-            
+            vectors = [sig.to_vector() for sig in profile.task_signatures]
+            variance = np.var(vectors, axis=0).mean()
             profile.specialization_strength = 1.0 - min(variance * 2, 1.0)
         
         self._save_specialist(profile)
     
-    def record_execution(self, specialist_id: str, success: bool, quality_score: float):
+    def record_execution(
+        self,
+        specialist_id: str,
+        success: bool,
+        quality_score: float
+    ):
         """Record execution outcome for specialist"""
         if specialist_id not in self.specialists:
             return
@@ -209,6 +192,7 @@ class AdaptiveResonanceOrchestrator:
         else:
             profile.failure_count += 1
         
+        # Update average quality (exponential moving average)
         if profile.average_quality == 0.0:
             profile.average_quality = quality_score
         else:
@@ -219,21 +203,53 @@ class AdaptiveResonanceOrchestrator:
         
         self._save_specialist(profile)
     
+    def prune_specialists(self):
+        """Remove underperforming specialists if over limit"""
+        if len(self.specialists) <= self.max_specialists:
+            return
+        
+        # Rank by performance
+        ranked = sorted(
+            self.specialists.items(),
+            key=lambda x: (
+                x[1].average_quality * (x[1].success_count / max(x[1].total_executions, 1))
+            ),
+            reverse=True
+        )
+        
+        # Keep only top performers
+        to_remove = [sid for sid, _ in ranked[self.max_specialists:]]
+        for specialist_id in to_remove:
+            del self.specialists[specialist_id]
+            (self.storage_path / f"{specialist_id}.json").unlink(missing_ok=True)
+    
     def match_or_create_specialist(self, task: Dict[str, Any]) -> str:
-        """Main orchestration method"""
+        """
+        Main orchestration method: find existing specialist or create new one
+        """
+        # Extract task characteristics
         task_signature = self.extract_task_signature(task)
+        
+        # Try to find matching specialist
         best_specialist_id, resonance = self.find_best_match(task_signature)
         
         print(f"Task: {task.get('description', 'N/A')}")
         print(f"Best match: {best_specialist_id} (resonance: {resonance:.2f})")
+        print(f"Vigilance threshold: {self.vigilance_threshold}")
         
         if resonance >= self.vigilance_threshold:
+            # Good match - use and adapt existing specialist
             print(f"→ Using existing specialist: {best_specialist_id}")
             self.adapt_specialist(best_specialist_id, task_signature)
             return best_specialist_id
         else:
+            # Poor match - create new specialist
             specialist_id = self.create_specialist(task_signature)
             print(f"→ Created new specialist: {specialist_id}")
+            
+            # Prune if needed
+            self.prune_specialists()
+            
             return specialist_id
     
     def get_specialist_stats(self) -> Dict[str, Any]:
@@ -259,7 +275,9 @@ class AdaptiveResonanceOrchestrator:
         """Persist specialist profile"""
         filepath = self.storage_path / f"{profile.specialist_id}.json"
         with open(filepath, 'w') as f:
-            json.dump(asdict(profile), f, indent=2)
+            # Convert to dict, handling non-serializable types
+            data = asdict(profile)
+            json.dump(data, f, indent=2)
     
     def _load_specialists(self):
         """Load existing specialists from storage"""
@@ -270,17 +288,21 @@ class AdaptiveResonanceOrchestrator:
             try:
                 with open(filepath, 'r') as f:
                     data = json.load(f)
+                    # Reconstruct TaskSignature objects
+                    data['task_signatures'] = [
+                        TaskSignature(**sig) for sig in data['task_signatures']
+                    ]
                     profile = SpecialistProfile(**data)
                     self.specialists[profile.specialist_id] = profile
             except Exception as e:
                 print(f"Error loading specialist from {filepath}: {e}")
 
 
+# Example usage
 if __name__ == "__main__":
-    import random
-    
     orchestrator = AdaptiveResonanceOrchestrator(vigilance_threshold=0.7)
     
+    # Simulate various tasks
     tasks = [
         {
             "description": "Research Python async patterns",
@@ -297,19 +319,39 @@ if __name__ == "__main__":
             "complexity": 0.5,
             "input_type": "text",
             "output_type": "tutorial",
-            "keywords": ["python", "tutorial"],
+            "keywords": ["python", "tutorial", "beginner"],
+            "estimated_duration": 3.0
+        },
+        {
+            "description": "Research JavaScript frameworks",
+            "domain": "research",
+            "complexity": 0.7,
+            "input_type": "text",
+            "output_type": "report",
+            "keywords": ["javascript", "frameworks", "comparison"],
+            "estimated_duration": 2.5
+        },
+        {
+            "description": "Deep dive into Python asyncio",
+            "domain": "research",
+            "complexity": 0.8,
+            "input_type": "text",
+            "output_type": "report",
+            "keywords": ["python", "asyncio", "advanced"],
             "estimated_duration": 3.0
         }
     ]
     
     print("=" * 60)
-    print("ADAPTIVE RESONANCE DEMO")
+    print("ADAPTIVE RESONANCE ORCHESTRATION DEMO")
     print("=" * 60)
     
     for i, task in enumerate(tasks, 1):
         print(f"\n--- Task {i} ---")
         specialist_id = orchestrator.match_or_create_specialist(task)
         
+        # Simulate execution (random outcome for demo)
+        import random
         success = random.random() > 0.2
         quality = random.uniform(0.7, 0.95) if success else random.uniform(0.3, 0.6)
         
@@ -317,5 +359,7 @@ if __name__ == "__main__":
         print(f"Execution: {'SUCCESS' if success else 'FAILED'} (quality: {quality:.2f})")
     
     print("\n" + "=" * 60)
+    print("SPECIALIST POOL STATISTICS")
+    print("=" * 60)
     stats = orchestrator.get_specialist_stats()
     print(json.dumps(stats, indent=2))

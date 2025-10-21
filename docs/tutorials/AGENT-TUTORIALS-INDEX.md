@@ -10,13 +10,21 @@ This document provides quick-start guidance for all 13 agents. For detailed tuto
 
 1. **[Orchestrator](./orchestrator-tutorial.md)** ✅ - Complete tutorial
 2. **[Researcher](./researcher-tutorial.md)** ✅ - Complete tutorial
-3. **[Writer](./writer-tutorial.md)** - See agent file: `.claude/agents/writer.md`
+3. **[Writer](./writer-tutorial.md)** ✅ - Complete tutorial
+4. **[Parallel Orchestrator](./parallel-orchestrator-tutorial.md)** ✅ - Complete tutorial
+5. **[Sequential Orchestrator](./sequential-orchestrator-tutorial.md)** ✅ - Complete tutorial
+6. **[Hub Orchestrator](./hub-orchestrator-tutorial.md)** ✅ - Complete tutorial
+7. **[Critic-Reviewer](./critic-reviewer-tutorial.md)** ✅ - Complete tutorial
+8. **[Policy Agent](./policy-agent-tutorial.md)** ✅ - Complete tutorial (VSM System 5)
+9. **[Intelligence Agent](./intelligence-agent-tutorial.md)** ✅ - Complete tutorial (VSM System 4)
+10. **[Control Agent](./control-agent-tutorial.md)** ✅ - Complete tutorial (VSM System 3)
+11. **[Coordination Agent](./coordination-agent-tutorial.md)** ✅ - Complete tutorial (VSM System 2)
 
 ---
 
-## Remaining Agent Quick Starts
+## Quick Reference for All Agents
 
-For agents 4-13, the agent files in `.claude/agents/` contain complete specifications. Here's how to use each:
+All tutorials follow consistent structure: Overview, Installation, Examples, Tips, Troubleshooting, Integration, and Next Steps.
 
 ### VSM Hierarchy Agents
 

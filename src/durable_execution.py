@@ -1,6 +1,6 @@
 """
 Durable Execution Framework
-Provides checkpointing, recovery, and state persistence for long-running workflows
+Provides checkpointing, recovery, and state persistence
 """
 
 import json
@@ -32,7 +32,7 @@ class Checkpoint:
 
 class DurableExecution:
     """
-    Manages durable execution with checkpointing and recovery
+    Manages durable execution with checkpointing
     """
     
     def __init__(self, storage_path: str = "data/executions"):
@@ -41,10 +41,15 @@ class DurableExecution:
         self.current_execution: Optional[str] = None
         self.execution_state: Dict[str, Any] = {}
     
-    def start_execution(self, execution_id: str, workflow: Dict[str, Any]) -> str:
+    def start_execution(
+        self,
+        execution_id: str,
+        workflow: Dict[str, Any]
+    ) -> str:
         """Start a new durable execution"""
         self.current_execution = execution_id
         
+        # Initialize execution record
         execution_record = {
             "execution_id": execution_id,
             "workflow": workflow,
@@ -71,7 +76,10 @@ class DurableExecution:
         if not self.current_execution:
             raise ValueError("No active execution")
         
-        checkpoint_id = self._generate_checkpoint_id(self.current_execution, phase)
+        checkpoint_id = self._generate_checkpoint_id(
+            self.current_execution,
+            phase
+        )
         
         checkpoint = Checkpoint(
             checkpoint_id=checkpoint_id,
@@ -84,6 +92,7 @@ class DurableExecution:
             metadata={}
         )
         
+        # Update execution record
         execution_record = self._load_execution(self.current_execution)
         execution_record["checkpoints"].append(asdict(checkpoint))
         execution_record["completed_steps"] = completed_steps
@@ -103,6 +112,7 @@ class DurableExecution:
         if not execution_record:
             raise ValueError(f"Execution not found: {execution_id}")
         
+        # Get latest checkpoint
         if not execution_record["checkpoints"]:
             raise ValueError(f"No checkpoints found for: {execution_id}")
         
@@ -111,6 +121,7 @@ class DurableExecution:
         self.current_execution = execution_id
         self.execution_state = execution_record
         
+        # Update status
         execution_record["status"] = ExecutionStatus.RUNNING.value
         self._save_execution(execution_record)
         
@@ -133,7 +144,9 @@ class DurableExecution:
         execution_record["status"] = ExecutionStatus.COMPLETED.value
         execution_record["end_time"] = time.time()
         execution_record["result"] = result
-        execution_record["duration"] = execution_record["end_time"] - execution_record["start_time"]
+        execution_record["duration"] = (
+            execution_record["end_time"] - execution_record["start_time"]
+        )
         
         self._save_execution(execution_record)
         
@@ -195,6 +208,7 @@ class DurableExecution:
             return json.load(f)
 
 
+# Example usage
 if __name__ == "__main__":
     print("=" * 60)
     print("DURABLE EXECUTION DEMO")
@@ -202,6 +216,7 @@ if __name__ == "__main__":
     
     executor = DurableExecution()
     
+    # Start execution
     execution_id = "exec_demo_001"
     workflow = {
         "name": "Research and Write Tutorial",
@@ -211,6 +226,7 @@ if __name__ == "__main__":
     print(f"\nStarting execution: {execution_id}")
     executor.start_execution(execution_id, workflow)
     
+    # Simulate work with checkpoints
     print("\n--- Phase 1: Research ---")
     time.sleep(0.5)
     executor.checkpoint(
@@ -229,16 +245,19 @@ if __name__ == "__main__":
         pending_steps=["write", "review"]
     )
     
+    # Simulate recovery
     print("\n--- Simulating Crash & Recovery ---")
-    executor.current_execution = None
+    executor.current_execution = None  # Simulate crash
     
     resume_data = executor.resume_execution(execution_id)
     print(f"Resumed at phase: {resume_data['phase']}")
     print(f"State: {resume_data['state']}")
     print(f"Pending: {resume_data['pending_steps']}")
     
+    # Complete execution
     print("\n--- Completing Execution ---")
     executor.complete_execution({"artifact": "tutorial.md", "quality": 0.89})
     
+    # Check status
     status = executor.get_execution_status(execution_id)
     print(f"\nFinal Status: {json.dumps(status, indent=2)}")
