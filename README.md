@@ -193,9 +193,34 @@ See **[Agent Tutorials](#-agent-tutorials)** section above for links to all 13 t
 
 ---
 
-## 🧪 Testing
+## 🧪 Testing & Demonstrations
 
-All stages include comprehensive test coverage:
+### 🎬 Automated Agent Demonstrations
+
+**NEW**: Interactive demonstrations of all 11 agents with simulated tasks!
+
+```bash
+# Run all agent demos (5-8 minutes)
+python tests/test-agents-demo.py
+
+# Run specific agent demo
+python tests/test-agents-demo.py 1   # Orchestrator
+python tests/test-agents-demo.py 5   # Policy Agent
+python tests/test-agents-demo.py 9   # Researcher
+
+# Get help
+python tests/test-agents-demo.py --help
+```
+
+**What you'll see**:
+- ✅ Agent capabilities and use cases
+- ✅ Simulated task execution with outputs
+- ✅ Quality validation processes
+- ✅ Key takeaways for each agent
+
+### 📋 Stage Tests
+
+Validate implementation milestones:
 
 ```bash
 # Test individual stages
@@ -207,6 +232,17 @@ python tests/test-stage5.py         # Stage 5: Production (4/4 ✅)
 ```
 
 **Total**: 18/18 tests passing (100% coverage)
+
+### 📖 Complete Testing Guide
+
+**[📘 RUNNING-TESTS.md](./docs/RUNNING-TESTS.md)** - Comprehensive testing documentation
+
+Includes:
+- Prerequisites and setup
+- Detailed usage instructions
+- Understanding results
+- Troubleshooting guide
+- Advanced usage patterns
 
 ---
 
