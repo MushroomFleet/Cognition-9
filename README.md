@@ -5,6 +5,7 @@
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v1.0.60+-blue)](https://claude.ai/code)
 [![Python](https://img.shields.io/badge/Python-3.7+-green)](https://python.org)
 [![Tests](https://img.shields.io/badge/Tests-18%2F18%20Passing-success)](./tests)
+[![Demos](https://img.shields.io/badge/Agent%20Demos-11%2F11%20Available-brightgreen)](./tests/test-agents-demo.py)
 [![License](https://img.shields.io/badge/License-Research-orange)](./LICENSE)
 
 ---
@@ -70,7 +71,16 @@ git clone https://github.com/yourusername/cognition-9.git
 cd cognition-9
 ```
 
-### 2. Verify Setup
+### 2. Run Agent Demonstrations (Recommended)
+
+```bash
+# See all 11 agents in action (5-8 minutes)
+python tests/test-agents-demo.py
+```
+
+This interactive demonstration shows what each agent does with simulated tasks.
+
+### 3. Verify Full Setup
 
 ```bash
 # Test Stage 1 (Foundation)
@@ -83,13 +93,13 @@ python tests/test-stage4.py
 python tests/test-stage5.py
 ```
 
-### 3. Install Optional Dependencies (for Stage 5)
+### 4. Install Optional Dependencies (for Stage 5)
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Start Using Agents
+### 5. Start Using Agents
 
 The agents are ready to use in Claude Code! See the [Agent Tutorials](#-agent-tutorials) below for detailed usage guides.
 
