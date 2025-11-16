@@ -1,0 +1,131 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Background Palette */
+    --background: 250 24% 10%; /* base_dark */
+    --card: 250 20% 14%; /* elevated */
+    --card-foreground: 250 10% 98%;
+    --popover: 250 24% 12%; /* overlay */
+    --popover-foreground: 250 10% 98%;
+
+    /* Primary (purple/violet) */
+    --primary: 263 70% 60%; /* #9F7AEA */
+    --primary-foreground: 250 10% 98%;
+    --primary-glow: 263 80% 70%; /* #B794F6 */
+
+    /* Accent (golden/amber) */
+    --accent: 38 92% 50%; /* #F59E0B */
+    --accent-foreground: 250 24% 10%;
+    --accent-glow: 38 100% 60%; /* #FBBF24 */
+
+    /* Secondary */
+    --secondary: 250 15% 20%;
+    --secondary-foreground: 250 10% 98%;
+    --muted: 250 15% 18%;
+    --muted-foreground: 250 10% 65%;
+
+    /* Semantic */
+    --success: 142 71% 45%; /* #10B981 */
+    --success-foreground: 250 10% 98%;
+    --destructive: 0 72% 51%; /* #DC2626 */
+    --destructive-foreground: 250 10% 98%;
+
+    /* Text Colors */
+    --foreground: 250 10% 98%; /* primary_text */
+
+    /* Borders */
+    --border: 250 15% 22%;
+    --input: 250 15% 22%;
+    --ring: 263 70% 60%; /* ≡ primary */
+
+    /* Radius */
+    --radius: 0.75rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(263 70% 60%) 0%, hsl(263 80% 70%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(38 100% 60%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(250 20% 14%) 0%, hsl(250 24% 10%) 100%);
+
+    /* Shadows */
+    --shadow-elegant: 0 10px 40px -10px hsl(263 70% 30% / 0.4);
+    --shadow-glow: 0 0 40px hsl(263 80% 70% / 0.3);
+    --shadow-accent: 0 4px 20px hsl(38 92% 50% / 0.3);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+    letter-spacing: -0.025em;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl;
+  }
+
+  h6 {
+    @apply text-base md:text-lg;
+  }
+}
+
+@layer utilities {
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .bg-gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .bg-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-smooth {
+    transition: none;
+  }
+
+  .animate-slide-up,
+  .animate-slide-down,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-glow,
+  .animate-pulse-glow {
+    animation: none;
+  }
+}
